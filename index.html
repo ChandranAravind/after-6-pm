@@ -1,1 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Unlock The Photo</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #fff3b0;
+    color: #111;
+}
+
+/* ================= HEADER ================= */
+
+header {
+    padding: 25px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #111;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.status {
+    background: #c8ff4d;
+    padding: 10px 18px;
+    border: 3px solid #111;
+    border-radius: 30px;
+    font-weight: bold;
+}
+
+/* ================= MAIN ================= */
+
+.game {
+    min-height: 100vh;
+    padding: 55px 25px 80px;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.title h1 {
+    font-size: clamp(50px, 9vw, 100px);
+    line-height: 0.85;
+    margin: 0;
+    letter-spacing: -5px;
+}
+
+.title h1 span {
+    color: #ff4d6d;
+}
+
+.title p {
+    font-size: 20px;
+    margin-top: 25px;
+}
+
+/* ================= GAME AREA ================= */
+
+.game-area {
+    max-width: 1150px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 60px;
+    align-items: center;
+}
+
+/* ================= CAGE ================= */
+
+.cage-wrapper {
+    width: min(500px, 90vw);
+    aspect-ratio: 1 / 1;
+
+    margin: auto;
+
+    position: relative;
+
+    padding: 15px;
+
+    background: #222;
+
+    border: 6px solid #111;
+
+    border-radius: 20px;
+
+    box-shadow:
+        12px 12px 0 #111;
+}
+
+/* PHOTO */
+
+.photo {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+
+    border-radius: 5px;
+}
+
+/* DARK GLASS EFFECT */
+
+.cage-darkness {
+    position: absolute;
+
+    inset: 15px;
+
+    background: rgba(0,0,0,0.12);
+
+    pointer-events: none;
+
+    z-index: 2;
+
+    transition: opacity 1s ease;
+}
+
+/* ================= CAGE BARS ================= */
+
+.cage-bars {
+    position: absolute;
+
+    inset: 15px;
+
+    display: flex;
+
+    justify-content: space-around;
+
+    overflow: hidden;
+
+    z-index: 4;
+
+    transition:
+        transform 1.2s cubic-bezier(.68,-0.55,.27,1.55),
+        opacity 0.8s ease;
+}
+
+.bar {
+    width: 14px;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #333 0%,
+            #aaa 25%,
+            #eee 45%,
+            #555 65%,
+            #222 100%
+        );
+
+    border-left: 2px solid #111;
+    border-right: 2px solid #111;
+
+    box-shadow:
+        3px 0 5px rgba(0,0,0,0.5),
+        -3px 0 5px rgba(0,0,0,0.4);
+}
+
+/* ================= LOCK ================= */
+
+.lock {
+    position: absolute;
+
+    z-index: 10;
+
+    left: 50%;
+    bottom: 25px;
+
+    transform: translateX(-50%);
+
+    width: 90px;
+    height: 105px;
+
+    background: #d6d6d6;
+
+    border: 5px solid #111;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 48px;
+
+    box-shadow:
+        6px 6px 0 #111;
+
+    transition:
+        transform 0.8s ease,
+        opacity 0.6s ease;
+}
+
+/* ================= LOCKED TEXT ================= */
+
+.locked-label {
+
+    position: absolute;
+
+    top: 25px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 8;
+
+    background: #ff4d6d;
+
+    color: white;
+
+    padding: 8px 18px;
+
+    border: 3px solid #111;
+
+    border-radius: 30px;
+
+    font-weight: 900;
+
+    white-space: nowrap;
+}
+
+/* ================= UNLOCK ANIMATION ================= */
+
+.unlocked .cage-bars {
+    transform: translateY(-120%);
+    opacity: 0;
+}
+
+.unlocked .cage-darkness {
+    opacity: 0;
+}
+
+.unlocked .lock {
+    transform:
+        translateX(-50%)
+        translateY(150px)
+        rotate(25deg);
+
+    opacity: 0;
+}
+
+.unlocked .locked-label {
+    opacity: 0;
+}
+
+/* ================= QUESTION CARD ================= */
+
+.question-box {
+
+    background: white;
+
+    border: 4px solid #111;
+
+    border-radius: 25px;
+
+    padding: 35px;
+
+    box-shadow:
+        10px 10px 0 #111;
+}
+
+.question-number {
+
+    display: inline-block;
+
+    background: #c8ff4d;
+
+    padding: 8px 14px;
+
+    border: 2px solid #111;
+
+    border-radius: 20px;
+
+    font-size: 14px;
+
+    font-weight: 900;
+}
+
+.question {
+
+    font-size: 30px;
+
+    font-weight: 900;
+
+    line-height: 1.15;
+
+    margin:
+        25px 0;
+}
+
+/* ================= ANSWERS ================= */
+
+.answers {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+}
+
+.answer {
+
+    padding: 18px;
+
+    background: #f7f7f7;
+
+    border: 3px solid #111;
+
+    border-radius: 15px;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.answer:hover {
+
+    background: #c8ff4d;
+
+    transform:
+        translate(-3px, -3px);
+
+    box-shadow:
+        5px 5px 0 #111;
+}
+
+.answer.correct {
+
+    background: #7cff7c;
+
+    transform: scale(1.03);
+}
+
+.answer.wrong {
+
+    background: #ff6b81;
+
+    animation: shake 0.35s;
+}
+
+.answer:disabled {
+
+    cursor: default;
+}
+
+/* ================= MESSAGE ================= */
+
+#message {
+
+    min-height: 35px;
+
+    margin-top: 25px;
+
+    font-size: 20px;
+
+    font-weight: 900;
+}
+
+/* ================= PROGRESS ================= */
+
+.progress {
+
+    display: flex;
+
+    gap: 12px;
+
+    margin-top: 25px;
+}
+
+.dot {
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    border: 3px solid #111;
+}
+
+.dot.done {
+
+    background: #ff4d6d;
+
+    transform: scale(1.15);
+}
+
+/* ================= WIN ================= */
+
+.win {
+
+    display: none;
+
+    text-align: center;
+
+    margin-top: 50px;
+
+    animation: pop 0.7s ease;
+}
+
+.win.show {
+    display: block;
+}
+
+.win h2 {
+
+    font-size: clamp(45px, 7vw, 80px);
+
+    margin: 0;
+
+    color: #ff4d6d;
+}
+
+.win p {
+
+    font-size: 22px;
+
+    font-weight: bold;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes shake {
+
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-8px);
+    }
+
+    50% {
+        transform: translateX(8px);
+    }
+
+    75% {
+        transform: translateX(-8px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pop {
+
+    0% {
+        transform: scale(0.5) rotate(-5deg);
+    }
+
+    70% {
+        transform: scale(1.1) rotate(2deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(0);
+    }
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 800px) {
+
+    .game-area {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .answers {
+        grid-template-columns: 1fr;
+    }
+
+    header {
+        padding: 20px;
+    }
+
+    .question-box {
+        padding: 25px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- ================= HEADER ================= -->
+
+<header>
+
+    <div class="logo">
+        ARVI ✦
+    </div>
+
+    <div class="status">
+        🔒 LEVEL 1
+    </div>
+
+</header>
+
+
+
+<!-- ================= GAME ================= -->
+
+<main class="game">
+
+
+    <div class="title">
+
+        <h1>
+            UNLOCK THE <span>PHOTO</span>
+        </h1>
+
+        <p>
+            Answer 3 questions correctly to unlock the photo.
+        </p>
+
+    </div>
+
+
+
+    <div class="game-area">
+
+
+        <!-- ================= PHOTO CAGE ================= -->
+
+        <div
+            class="cage-wrapper"
+            id="cage"
+        >
+
+            <!-- ACTUAL PHOTO -->
+
+            <img
+                src="download.jpg"
+                class="photo"
+                alt="Locked photo"
+            >
+
+
+            <!-- DARKNESS -->
+
+            <div class="cage-darkness"></div>
+
+
+            <!-- CAGE BARS -->
+
+            <div class="cage-bars">
+
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+
+            </div>
+
+
+            <!-- LOCKED LABEL -->
+
+            <div class="locked-label">
+                🔒 LOCKED
+            </div>
+
+
+            <!-- PADLOCK -->
+
+            <div class="lock">
+                🔒
+            </div>
+
+        </div>
+
+
+
+        <!-- ================= QUESTION ================= -->
+
+        <div>
+
+            <div
+                class="question-box"
+                id="questionBox"
+            >
+
+                <div
+                    class="question-number"
+                    id="questionNumber"
+                >
+                    QUESTION 1 OF 3
+                </div>
+
+
+                <div
+                    class="question"
+                    id="question"
+                >
+                    What colour is the person's clothing?
+                </div>
+
+
+                <div
+                    class="answers"
+                    id="answers"
+                >
+
+                    <button
+                        class="answer"
+                        onclick="answer(this, 'pink')"
+                    >
+                        Pink
+                    </button>
+
+                    <button
+                        class="answer"
+                        onclick="answer(this, 'blue')"
+                    >
+                        Blue
+                    </button>
+
+                    <button
+                        class="answer"
+                        onclick="answer(this, 'green')"
+                    >
+                        Green
+                    </button>
+
+                    <button
+                        class="answer"
+                        onclick="answer(this, 'black')"
+                    >
+                        Black
+                    </button>
+
+                </div>
+
+
+                <div id="message"></div>
+
+
+                <div class="progress">
+
+                    <div
+                        class="dot"
+                        id="dot1"
+                    ></div>
+
+                    <div
+                        class="dot"
+                        id="dot2"
+                    ></div>
+
+                    <div
+                        class="dot"
+                        id="dot3"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= WIN ================= -->
+
+            <div
+                class="win"
+                id="win"
+            >
+
+                <h2>
+                    🔓 UNLOCKED!
+                </h2>
+
+                <p>
+                    You solved all 3 questions.
+                    <br>
+                    The photo is yours. 🎉
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+
+let currentQuestion = 1;
+
+
+/* ================= QUESTIONS ================= */
+
+const questions = [
+
+    {
+        question:
+            "What colour is the person's clothing?",
+
+        answers: [
+            ["Pink", "pink"],
+            ["Blue", "blue"],
+            ["Green", "green"],
+            ["Black", "black"]
+        ],
+
+        correct: "pink"
+    },
+
+
+    {
+        question:
+            "Where are the person's hands?",
+
+        answers: [
+            ["Near their face", "face"],
+            ["Inside their pockets", "pockets"],
+            ["Behind their back", "back"],
+            ["Holding a phone", "phone"]
+        ],
+
+        correct: "face"
+    },
+
+
+    {
+        question:
+            "What can you see near the person's ears?",
+
+        answers: [
+            ["Earrings", "earrings"],
+            ["Headphones", "headphones"],
+            ["Glasses", "glasses"],
+            ["A hat", "hat"]
+        ],
+
+        correct: "earrings"
+    }
+
+];
+
+
+
+/* ================= ANSWER ================= */
+
+function answer(button, selectedAnswer) {
+
+
+    const current =
+        questions[currentQuestion - 1];
+
+
+    const message =
+        document.getElementById("message");
+
+
+    const buttons =
+        document.querySelectorAll(".answer");
+
+
+    /* Disable buttons */
+
+    buttons.forEach(function(btn) {
+
+        btn.disabled = true;
+
+    });
+
+
+
+    /* ================= WRONG ================= */
+
+    if (selectedAnswer !== current.correct) {
+
+
+        button.classList.add("wrong");
+
+
+        message.innerText =
+            "❌ WRONG! The cage stays locked.";
+
+
+        setTimeout(function() {
+
+
+            buttons.forEach(function(btn) {
+
+                btn.disabled = false;
+
+                btn.classList.remove("wrong");
+
+            });
+
+
+            message.innerText = "";
+
+
+        }, 1000);
+
+
+        return;
+
+    }
+
+
+
+    /* ================= CORRECT ================= */
+
+    button.classList.add("correct");
+
+
+    message.innerText =
+        "✅ CORRECT! Nice observation.";
+
+
+    document
+        .getElementById("dot" + currentQuestion)
+        .classList.add("done");
+
+
+
+    /* ================= LAST QUESTION ================= */
+
+    if (currentQuestion === 3) {
+
+
+        setTimeout(function() {
+
+            unlockPhoto();
+
+        }, 1000);
+
+
+        return;
+
+    }
+
+
+
+    /* ================= NEXT QUESTION ================= */
+
+    setTimeout(function() {
+
+
+        currentQuestion++;
+
+
+        loadQuestion();
+
+
+    }, 1000);
+
+}
+
+
+
+/* ================= LOAD NEXT QUESTION ================= */
+
+function loadQuestion() {
+
+
+    const current =
+        questions[currentQuestion - 1];
+
+
+    document
+        .getElementById("questionNumber")
+        .innerText =
+        "QUESTION " +
+        currentQuestion +
+        " OF 3";
+
+
+    document
+        .getElementById("question")
+        .innerText =
+        current.question;
+
+
+
+    const answers =
+        document.getElementById("answers");
+
+
+    answers.innerHTML = "";
+
+
+
+    current.answers.forEach(function(item) {
+
+
+        const button =
+            document.createElement("button");
+
+
+        button.className =
+            "answer";
+
+
+        button.innerText =
+            item[0];
+
+
+        button.onclick =
+            function() {
+
+                answer(this, item[1]);
+
+            };
+
+
+        answers.appendChild(button);
+
+    });
+
+
+
+    document
+        .getElementById("message")
+        .innerText = "";
+
+}
+
+
+
+/* ================= UNLOCK ================= */
+
+function unlockPhoto() {
+
+
+    document
+        .getElementById("cage")
+        .classList.add("unlocked");
+
+
+    document
+        .getElementById("questionBox")
+        .style.display = "none";
+
+
+    document
+        .getElementById("win")
+        .classList.add("show");
+
+}
+
+</script>
+
+
+</body>
+</html>
